@@ -22,7 +22,8 @@ on this point):
     CHAINS         comma-separated, e.g. "ethereum,bitcoin" (default: ethereum)
     POLL_INTERVAL  seconds between polls (default: 15)
 """
-
+import os
+from google import genai
 import asyncio
 import logging
 import os
@@ -147,8 +148,37 @@ async def main():
         if signals:
             handle_signals(chain, signals)
 
-    await collector.run_forever(poll_interval_seconds=POLL_INTERVAL, on_batch=on_batch)
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+
+
+def get_ai_insight(chain: str, signal_type: str, value: float, meta: dict) -> str:
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return "No API key configured"
+    try:
+        client = genai.Client(api_key=api_key)
+        prompt = (
+            f"Crypto Whale Alert:\n"
+            f"- Chain: {chain}\n"
+            f"- Type: {signal_type}\n"
+            f"- Value: ${value:,.2f}\n"
+            f"- Details: {meta}\n\n"
+            f"Give a 1-sentence quick summary in Hinglish explaining what this whale move means for retail traders."
+        )
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        return response.text.strip()
+    except Exception as e:
+        return f"AI Error: {e}"
+
+
+def handle_signals(chain: str, signals) -> None:
+    for s in signals:
+        ai_summary = get_ai_insight(chain, s.signal_type, s.value, s.metadata)
+        logger.info(
+            f"🚨 [WHALE ALERT] chain={chain} | type={s.signal_type} | value=${s.value:,.0f}\n"
+            f"💡 [GEMINI INSIGHT]: {ai_summary}"
+        )
