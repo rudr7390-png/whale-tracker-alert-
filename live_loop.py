@@ -43,11 +43,11 @@ logger = logging.getLogger("live_loop")
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./whale.db")
 CHAINS = [c.strip() for c in os.environ.get("CHAINS", "ethereum").split(",") if c.strip()]
-POLL_INTERVAL = int(os.environ.get("POLL_INTERVAL", "15"))
-ETH_RPC_URL = os.environ.get("ETH_RPC_URL", "https://rpc.ankr.com/eth")
-BTC_API_URL = os.environ.get("BTC_API_URL", "https://blockstream.info/api")
-SOL_RPC_URL = os.environ.get("SOL_RPC_URL", "https://api.mainnet-beta.solana.com")
-
+POLL_INTERVAL = int(os.environ.get("POLL_INTERVAL", "35"))
+# Custom RPC / API URLs read from Environment Variables
+ETH_RPC_URL = os.environ.get("ETH_RPC_URL", "https://eth-mainnet.g.alchemy.com/v2/alch_G0Yef3hbN41Y1tcLaNs_A")
+BTC_API_URL = os.environ.get("BTC_API_URL", "https://bitcoin-mainnet.g.alchemy.com/v2/alch_TNtxSvNj_UHuVRaG0De2m")
+SOL_RPC_URL = os.environ.get("SOL_RPC_URL", "https://solana-mainnet.g.alchemy.com/v2/alch__QGxmFI3hrdaVrWO9nUdk")
 def build_collector() -> MultiChainCollector:
     price_feed = PriceFeed()
     adapters = []
