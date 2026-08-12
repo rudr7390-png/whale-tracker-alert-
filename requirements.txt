@@ -3,3 +3,4 @@ sqlalchemy
 duckdb-engine
 numpy
 pandas
+google-genai
