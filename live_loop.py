@@ -44,17 +44,19 @@ logger = logging.getLogger("live_loop")
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./whale.db")
 CHAINS = [c.strip() for c in os.environ.get("CHAINS", "ethereum").split(",") if c.strip()]
 POLL_INTERVAL = int(os.environ.get("POLL_INTERVAL", "15"))
-
+ETH_RPC_URL = os.environ.get("ETH_RPC_URL", "https://rpc.ankr.com/eth")
+BTC_API_URL = os.environ.get("BTC_API_URL", "https://blockstream.info/api")
+SOL_RPC_URL = os.environ.get("SOL_RPC_URL", "https://api.mainnet-beta.solana.com")
 
 def build_collector() -> MultiChainCollector:
     price_feed = PriceFeed()
     adapters = []
     if "ethereum" in CHAINS:
-        adapters.append(EthereumAdapter(price_feed))
+        adapters.append(EthereumAdapter(price_feed, rpc_url=ETH_RPC_URL))
     if "bitcoin" in CHAINS:
-        adapters.append(BitcoinAdapter(price_feed))
+        adapters.append(BitcoinAdapter(price_feed, base_url=BTC_API_URL))
     if "solana" in CHAINS:
-        adapters.append(SolanaAdapter(price_feed))
+        adapters.append(SolanaAdapter(price_feed, rpc_url=SOL_RPC_URL))
     if not adapters:
         raise ValueError(f"No recognized chains in CHAINS={CHAINS!r} — expected some of ethereum,bitcoin,solana")
     return MultiChainCollector(adapters)
